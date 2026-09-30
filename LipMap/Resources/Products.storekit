@@ -1,0 +1,98 @@
+{
+  "identifier" : "LipMapStore",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21591001",
+      "localizations" : [
+        {
+          "description" : "All-time pins, badges, friends, and weekly location league.",
+          "displayName" : "Full Map",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Full Map",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21591011",
+          "introductoryOffer" : {
+            "displayPrice" : "0",
+            "internalID" : "21591012",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Full Map yearly. About 83¢ a month.",
+              "displayName" : "Full Map Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "lipmap_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Full Map Yearly",
+          "subscriptionGroupID" : "21591001",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "21591021",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full Map monthly.",
+              "displayName" : "Full Map Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "lipmap_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Full Map Monthly",
+          "subscriptionGroupID" : "21591001",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
