@@ -181,7 +181,7 @@ enum FriendsError: Error, LocalizedError {
         switch self {
         case .invalidCode: return "Enter a 6-digit code."
         case .cannotAddSelf: return "That’s your code."
-        case .alreadyAdded: return "Already friends."
+        case .alreadyAdded: return "Already following."
         }
     }
 }

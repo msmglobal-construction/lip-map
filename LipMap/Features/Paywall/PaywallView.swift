@@ -21,8 +21,8 @@ struct PaywallView: View {
 
                     VStack(spacing: 12) {
                         productButton(
-                            title: "Yearly",
-                            subtitle: "3-day free trial · 83¢ a month",
+                            title: "$9.99/year",
+                            subtitle: "19¢ a week · 3-day free trial",
                             price: appModel.entitlements.yearlyProduct?.displayPrice ?? "$9.99",
                             highlighted: true
                         ) {
@@ -30,12 +30,12 @@ struct PaywallView: View {
                         }
 
                         productButton(
-                            title: "Monthly",
+                            title: "$0.99/week",
                             subtitle: "Cancel anytime",
-                            price: appModel.entitlements.monthlyProduct?.displayPrice ?? "$1.99",
+                            price: appModel.entitlements.weeklyProduct?.displayPrice ?? "$0.99",
                             highlighted: false
                         ) {
-                            await purchaseMonthly()
+                            await purchaseWeekly()
                         }
                     }
 
@@ -136,11 +136,11 @@ struct PaywallView: View {
         }
     }
 
-    private func purchaseMonthly() async {
+    private func purchaseWeekly() async {
         busy = true
         defer { busy = false }
         errorText = nil
-        if let product = appModel.entitlements.monthlyProduct {
+        if let product = appModel.entitlements.weeklyProduct {
             do {
                 try await appModel.entitlements.purchase(product)
                 if appModel.entitlements.isSubscribed { dismiss() }
@@ -148,7 +148,7 @@ struct PaywallView: View {
                 errorText = error.localizedDescription
             }
         } else {
-            errorText = "Monthly product unavailable. Check StoreKit config (lipmap_monthly)."
+            errorText = "Weekly product unavailable. Check StoreKit config (lipmap_weekly)."
         }
     }
 }

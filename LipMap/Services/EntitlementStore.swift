@@ -6,23 +6,23 @@ import Observation
 protocol EntitlementServing: AnyObject {
     var isSubscribed: Bool { get }
     var yearlyProduct: Product? { get }
-    var monthlyProduct: Product? { get }
+    var weeklyProduct: Product? { get }
     func refresh() async
     func purchase(_ product: Product) async throws
     func restore() async
 }
 
-/// StoreKit 2 — lipmap_yearly + lipmap_monthly.
+/// StoreKit 2 — lipmap_yearly + lipmap_weekly.
 @Observable
 @MainActor
 final class EntitlementStore: EntitlementServing {
     static let yearlyProductID = "lipmap_yearly"
-    static let monthlyProductID = "lipmap_monthly"
-    static let allProductIDs: Set<String> = [yearlyProductID, monthlyProductID]
+    static let weeklyProductID = "lipmap_weekly"
+    static let allProductIDs: Set<String> = [yearlyProductID, weeklyProductID]
 
     private(set) var isSubscribed = false
     private(set) var yearlyProduct: Product?
-    private(set) var monthlyProduct: Product?
+    private(set) var weeklyProduct: Product?
     private var updatesTask: Task<Void, Never>?
 
     init() {
@@ -65,7 +65,7 @@ final class EntitlementStore: EntitlementServing {
         do {
             let products = try await Product.products(for: Self.allProductIDs)
             yearlyProduct = products.first { $0.id == Self.yearlyProductID }
-            monthlyProduct = products.first { $0.id == Self.monthlyProductID }
+            weeklyProduct = products.first { $0.id == Self.weeklyProductID }
         } catch {
             // StoreKit unavailable offline / Linux stub environments.
         }
@@ -96,7 +96,7 @@ final class EntitlementStore: EntitlementServing {
 final class StubEntitlementStore: EntitlementServing {
     var isSubscribed: Bool
     var yearlyProduct: Product? = nil
-    var monthlyProduct: Product? = nil
+    var weeklyProduct: Product? = nil
 
     init(isSubscribed: Bool = false) {
         self.isSubscribed = isSubscribed

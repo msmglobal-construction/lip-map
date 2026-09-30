@@ -44,17 +44,17 @@ struct FriendsView: View {
                         }
                     }
                 } footer: {
-                    Text("Share this 6-digit code so friends can find your pins.")
+                    Text("Share your 6-digit code. When someone types it, they follow you and see your pins.")
                 }
 
-                Section("Add friend") {
+                Section("Follow") {
                     HStack {
-                        TextField("Paste friend code", text: $pasteCode)
+                        TextField("Their 6-digit code", text: $pasteCode)
                             .keyboardType(.numberPad)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        Button("Add") {
-                            addFriend()
+                        Button("Follow") {
+                            followFriend()
                         }
                         .disabled(pasteCode.filter(\.isNumber).count != 6)
                     }
@@ -63,9 +63,11 @@ struct FriendsView: View {
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
+                } footer: {
+                    Text("Typing their code is the follow. No search, no discover, no directory.")
                 }
 
-                Section("Friends") {
+                Section("Following") {
                     if let list = friends?.friends, !list.isEmpty {
                         ForEach(list, id: \.id) { friend in
                             HStack {
@@ -88,9 +90,11 @@ struct FriendsView: View {
                             }
                         }
                     } else {
-                        Text("No friends yet. Paste a code above.")
+                        Text("Not following anyone yet. Enter a code above.")
                             .foregroundStyle(.secondary)
                     }
+                } footer: {
+                    Text("Swipe to unfollow. League ranks unique places this week — not pouch count.")
                 }
 
                 Section {
@@ -153,7 +157,7 @@ struct FriendsView: View {
         }
     }
 
-    private func addFriend() {
+    private func followFriend() {
         errorText = nil
         do {
             _ = try appModel.friendsService?.addFriend(code: pasteCode)

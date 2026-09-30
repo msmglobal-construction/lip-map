@@ -54,9 +54,11 @@ Optional flavor after save: Cool Mint / Wintergreen / Other — skip if it slows
 1. **Home** — giant Tucked, today’s count, small last tuck time
 2. **Map** — all my pins, cluster if needed, tap = time + optional flavor
 3. **Badges** — locked/unlocked grid
-4. **Friends** — 6-digit code, paste friend code, friends list, weekly league
+4. **Friends** — your 6-digit code, type theirs to follow, following list, weekly league
 
 No extra tabs, settings mazes, onboarding essays, streak calendar. One short permission sentence on first Tucked.
+
+Friends: code-in is the follow. Type their 6-digit code → you follow them and see their pins. They follow you the same way with your code. Remove = unfollow. No public search, discover, suggested users, comments, likes, or feed.
 
 ---
 
@@ -91,14 +93,17 @@ Enum + simple unlock rules; no badge editor.
 
 | Product ID | Price | Notes |
 |---|---|---|
-| `lipmap_yearly` | $9.99 | Highlight; 3-day free trial; “83¢ a month” |
-| `lipmap_monthly` | $1.99 | |
+| `lipmap_yearly` | $9.99 | Primary; 3-day free trial; “19¢ a week” |
+| `lipmap_weekly` | $0.99 | Secondary; no trial |
 
 - Title: **Full Map**
 - Body: All-time pins. Badges. Friends. Weekly location league.
+- Primary CTA: **$9.99/year** — “19¢ a week”
+- Secondary CTA: **$0.99/week**
 - Restore Purchases.
 - Hard paywall when **20 tucks** OR **7 days since first tuck** (whichever first).
 - Free: last 7 days pins, no friends league, badges visible but locked art.
+- No monthly product.
 
 ---
 
@@ -134,7 +139,7 @@ Entertainment only. 18+. Not a quit app. Not wellness. Just pins.
 
 1. Tucked + local pins + map + today count
 2. Badges
-3. StoreKit both products
+3. StoreKit yearly + weekly
 4. Friends
 
 ---

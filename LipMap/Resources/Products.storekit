@@ -46,7 +46,7 @@
           },
           "localizations" : [
             {
-              "description" : "Full Map yearly. About 83¢ a month.",
+              "description" : "Full Map yearly. About 19¢ a week.",
               "displayName" : "Full Map Yearly",
               "locale" : "en_US"
             }
@@ -67,21 +67,21 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "1.99",
+          "displayPrice" : "0.99",
           "familyShareable" : false,
           "groupNumber" : 2,
-          "internalID" : "21591021",
+          "internalID" : "21591031",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Full Map monthly.",
-              "displayName" : "Full Map Monthly",
+              "description" : "Full Map weekly.",
+              "displayName" : "Full Map Weekly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "lipmap_monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Full Map Monthly",
+          "productID" : "lipmap_weekly",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "Full Map Weekly",
           "subscriptionGroupID" : "21591001",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
