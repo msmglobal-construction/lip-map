@@ -21,13 +21,35 @@ enum BadgeEvaluator {
             }
         }
 
+        // Flavor milestones.
+        let flavors = Set(sorted.compactMap(\.flavor))
+        if flavors.contains(.coolMint) {
+            unlocked.insert(.firstCoolMint)
+        }
+        if flavors.count >= 5 {
+            unlocked.insert(.flavorTourist)
+        }
+        if flavors.count >= 10 {
+            unlocked.insert(.fullFlight)
+        }
+        let mintCount = sorted.filter { $0.flavor?.isMintFamily == true }.count
+        if mintCount >= 5 {
+            unlocked.insert(.mintMachine)
+        }
+
+        // State travel.
+        if StateAtlas.visited(from: sorted).count >= 5 {
+            unlocked.insert(.zynbabwe)
+        }
+
         guard !sorted.isEmpty else { return unlocked }
 
         for pin in sorted {
             let tags = Set(pin.tags.map { $0.lowercased() })
             let manuals = Set(pin.manualBadgeIDs)
 
-            if tags.contains("coffee") || tags.contains("cafe") || tags.contains("zynachino") {
+            if tags.contains("coffee") || tags.contains("cafe") || tags.contains("zynachino")
+                || pin.flavor == .coffee || pin.flavor == .espresso {
                 unlocked.insert(.zynachino)
             }
             if tags.contains("church") || tags.contains("chapel") {

@@ -4,6 +4,7 @@ import MapKit
 
 struct PinsMapView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.modelContext) private var modelContext
     @Query(sort: \TuckPin.timestamp, order: .reverse) private var pins: [TuckPin]
     @State private var selectedID: UUID?
     @State private var position: MapCameraPosition = .automatic
@@ -36,7 +37,7 @@ struct PinsMapView: View {
 
                 if visible.isEmpty {
                     ContentUnavailableView(
-                        "No pins yet",
+                        "No lip pillows pinned",
                         systemImage: "mappin.slash",
                         description: Text("Tap Tucked on Home to drop one.")
                     )
@@ -47,9 +48,14 @@ struct PinsMapView: View {
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
                 if let selected {
-                    PinCallout(pin: selected)
-                        .padding()
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    PinCallout(pin: selected) {
+                        Task {
+                            await appModel.deletePin(selected, modelContext: modelContext, remainingPins: pins)
+                            selectedID = nil
+                        }
+                    }
+                    .padding()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else if !appModel.entitlements.isSubscribed && pins.count > visible.count {
                     Text("Free map shows the last 7 days. Full Map unlocks all-time pins.")
                         .font(.caption)
@@ -75,19 +81,32 @@ struct PinsMapView: View {
 
 private struct PinCallout: View {
     let pin: TuckPin
+    var onDelete: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(pin.timestamp.formatted(date: .abbreviated, time: .shortened))
-                .font(.headline)
-            if let flavor = pin.flavor {
-                Text(flavor.rawValue)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("No flavor noted")
-                    .font(.subheadline)
-                    .foregroundStyle(.tertiary)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(pin.timestamp.formatted(date: .abbreviated, time: .shortened))
+                        .font(.headline)
+                    Text(pin.placeLabel)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    if let flavor = pin.flavor {
+                        Text(flavor.rawValue)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("No flavor noted")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                Spacer()
+                Button(role: .destructive, action: onDelete) {
+                    Image(systemName: "trash")
+                }
+                .buttonStyle(.bordered)
             }
         }
         .padding(14)

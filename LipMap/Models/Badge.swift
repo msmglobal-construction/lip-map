@@ -17,6 +17,13 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
     case tenDeep
     case fiftyDeep
     case hundredClub
+    /// Flavor milestones.
+    case firstCoolMint
+    case flavorTourist
+    case fullFlight
+    case mintMachine
+    /// State travel joke badge.
+    case zynbabwe
 
     var id: String { rawValue }
 
@@ -33,10 +40,15 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .deerStand: return "Deer Stand"
         case .upperDeck: return "Upper Deck"
         case .interstate: return "Interstate"
-        case .firstOne: return "First One"
+        case .firstOne: return "First Lip Pillow"
         case .tenDeep: return "Ten Deep"
         case .fiftyDeep: return "Fifty Deep"
         case .hundredClub: return "Hundred Club"
+        case .firstCoolMint: return "First Cool Mint"
+        case .flavorTourist: return "Flavor Tourist"
+        case .fullFlight: return "Full Flight"
+        case .mintMachine: return "Mint Machine"
+        case .zynbabwe: return "Zynbabwe"
         }
     }
 
@@ -46,7 +58,7 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .churchParkingLot: return "Near a church parking lot"
         case .gateB12: return "Airport energy"
         case .herParentsHouse: return "Manual — you know where"
-        case .twoOhSevenAM: return "Tucked between 2:00–2:59 AM"
+        case .twoOhSevenAM: return "Lip pillow between 2:00–2:59 AM"
         case .twoInOneRedLight: return "Two pins within 3 minutes"
         case .workBathroom: return "Manual — the stall classic"
         case .boat: return "On the water"
@@ -57,6 +69,11 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .tenDeep: return "10 lifetime tucks"
         case .fiftyDeep: return "50 lifetime tucks"
         case .hundredClub: return "100 lifetime tucks"
+        case .firstCoolMint: return "Logged a Cool Mint tuck"
+        case .flavorTourist: return "Tried 5 different flavors"
+        case .fullFlight: return "Tried 10 different flavors"
+        case .mintMachine: return "5 mint-family lip pillows"
+        case .zynbabwe: return "Lip pillow’d in 5 US states"
         }
     }
 
@@ -77,6 +94,11 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .tenDeep: return "10.circle.fill"
         case .fiftyDeep: return "50.circle.fill"
         case .hundredClub: return "trophy.fill"
+        case .firstCoolMint: return "leaf.fill"
+        case .flavorTourist: return "paintpalette.fill"
+        case .fullFlight: return "square.grid.3x3.fill"
+        case .mintMachine: return "snowflake"
+        case .zynbabwe: return "globe.americas.fill"
         }
     }
 
@@ -94,6 +116,15 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
     var isLifetimeMilestone: Bool {
         switch self {
         case .firstOne, .tenDeep, .fiftyDeep, .hundredClub:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isFlavorMilestone: Bool {
+        switch self {
+        case .firstCoolMint, .flavorTourist, .fullFlight, .mintMachine:
             return true
         default:
             return false

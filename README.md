@@ -1,6 +1,6 @@
 # Lip Map
 
-Joke map for nicotine pouch pins. Entertainment. 18+.
+Joke map for nicotine pouch pins (“lip pillows”). Entertainment. 18+.
 
 **Not** a quit app. Not wellness. Not Health & Fitness.
 
@@ -14,13 +14,15 @@ Joke map for nicotine pouch pins. Entertainment. 18+.
 | Bundle name | Lip Map |
 | Bundle ID | `com.lipmap.app` |
 
-Do **not** use the word ZYN in the app name, icon, paywall, or StoreKit product names. Internal joke only: badge **ZYNachino**. Optional splash text: “Lip Map”. Never “ZYNachino” as the app title.
+Do **not** use the word ZYN in the app name, icon, paywall, or StoreKit product names. Internal joke badges only: **ZYNachino**, **Zynbabwe**. Optional splash text: “Lip Map”.
+
+**App icon (locked):** white lip pillow + red map pin (`docs/lip-map-app-icon-v5.png` → `AppIcon.appiconset`). No can. No ZYN text. Not v1 lips / v2 sunglasses.
 
 ---
 
 ## What this is
 
-User taps one button when they put in a nicotine pouch. App drops a GPS pin. Friends share a 6-digit code and see pins. Entertainment only.
+User taps **Tucked** when they put in a lip pillow. App drops a GPS pin, optionally tags flavor, reverse-geocodes state/city. Friends invite via Contacts + deep link. Weekly league = unique places, not tuck volume. Entertainment only.
 
 ## What this is not
 
@@ -33,9 +35,10 @@ Do **not** add: savings, money wasted, taper, quit date, craving timer, gum heal
 - SwiftUI, iOS 17+
 - MapKit
 - CoreLocation (when-in-use only; requested on first tap of Tucked)
+- CLGeocoder for state / locality (background after tuck)
 - SwiftData for local pins
 - StoreKit 2 for subscriptions
-- Friends: 6-digit code + CloudKit (prefer shipping; stub only if must)
+- Friends: Contacts invite + `lipmap://` deep link (6-digit code = fallback) + CloudKit preferred
 
 ---
 
@@ -43,54 +46,81 @@ Do **not** add: savings, money wasted, taper, quit date, craving timer, gum heal
 
 Giant button labeled **Tucked**.
 
-On tap: haptic → lat/long + timestamp → save Pin → drop on map → return home (button + today’s count).
-
-Optional flavor after save: Cool Mint / Wintergreen / Other — skip if it slows first tap. Flavor optional; location not.
+On tap: haptic → lat/long + timestamp → save Pin → drop on map → return home (button + today’s count). Optional flavor sheet after save — never blocks the primary tap. Region geocode + POI tags run in background.
 
 ---
 
 ## Tabs (exactly 4)
 
-1. **Home** — giant Tucked, today’s count, small last tuck time
-2. **Map** — all my pins, cluster if needed, tap = time + optional flavor
-3. **Badges** — locked/unlocked grid
-4. **Friends** — your 6-digit code, type theirs to send a follow request, Accept/Decline, following list, weekly league
+1. **Home** — giant Tucked, today + lifetime counts, chips for **Your map stats** (dashboard), **States**, **History** (swipe-delete). No 5th tab.
+2. **Map** — pins, callout with flavor/place + delete
+3. **Badges** — locked/unlocked grid (flavor + state + place jokes)
+4. **Friends** — **leaderboard first** (unique places this week), Contacts invite / share link, Accept/Decline, code fallback
 
-No extra tabs, settings mazes, onboarding essays, streak calendar. One short permission sentence on first Tucked.
+---
 
-Friends: code-in sends a **follow request**. They must **Accept** before you follow them or see their pins. Decline/ignore leaves you out. After accept, remove = unfollow. Incoming “Added you” list + outgoing Pending state. No public search, discover, suggested users, comments, likes, or feed.
+## Flavors
+
+Optional after Tucked. Persist on pin. Menu (brand-agnostic names): Cool Mint, Spearmint, Peppermint, Menthol, Wintergreen, Peppermint Ice, Citrus, Lemon, Lime, Orange, Coffee, Espresso, Chill, Smooth, Black Cherry, Apple Mint, Vanilla, Dragon Fruit, Other.
+
+Flavor badges: First Cool Mint, Flavor Tourist (5), Full Flight (10), Mint Machine (5 mint-family).
+
+---
+
+## States
+
+Pins store `regionCode` / `regionName` / `locality` from reverse geocode. Home → States shows US states (+ DC) grid of where you’ve lip pillow’d. Badge **Zynbabwe** at 5 states.
+
+---
+
+## Delete tuck
+
+Swipe-delete in Home → History, or trash on Map pin callout. Removes SwiftData pin; counts, map, badges, states, league recompute from remaining pins.
+
+---
+
+## Dashboard (Home sheet)
+
+Joke-map stats only: lifetime / week / unique places, time-of-day + day-of-week heat, top places/states, flavor breakdown. **Not** quit/wellness (no money saved, no cut-back).
+
+---
+
+## Friends & leaderboard
+
+- Primary: **Invite from Contacts** → Messages/share sheet with `lipmap://invite?code=XXXXXX`
+- Fallback: typed 6-digit code
+- Follow request → peer Accept before follow/pins
+- **Leaderboard** is the top Friends section: rank, name, unique-place count this week among you + accepted friends. Never “most tucks wins”.
 
 ---
 
 ## League
 
-Rank by **unique pin locations this week** (distinct rounded coords/places) among **accepted follows only**, **not** total pouches. Never “most tucks wins”. Home shows today-count plus **lifetime** tuck count.
+Rank by **unique pin locations this week** among **accepted follows only**. Home shows today-count plus **lifetime** tuck count.
 
 ---
 
 ## Badges
 
-Enum + simple unlock rules; no badge editor.
-
 | Badge | Rule |
 |---|---|
-| ZYNachino | Coffee/cafe POI or tag “coffee” |
+| ZYNachino | Coffee/cafe POI or Coffee/Espresso flavor |
 | Church Parking Lot | Church / parking near place of worship |
 | Gate B12 | Airport |
 | Her Parents’ House | Manual |
 | 2:07 AM | Timestamp 2:00–2:59 AM |
 | Two In One Red Light | Two pins within 3 minutes |
 | Work Bathroom | Manual |
-| Boat | Water / marina / boat-related place |
+| Boat | Water / marina |
 | Deer Stand | Manual |
-| Upper Deck | Elevated / stadium upper-level tag |
-| Interstate | Near highway / interstate |
-| First One | 1 lifetime tuck (count only) |
-| Ten Deep | 10 lifetime tucks (count only) |
-| Fifty Deep | 50 lifetime tucks (count only) |
-| Hundred Club | 100 lifetime tucks (count only) |
-
-Lifetime milestone badges unlock by successful Tucked tap count only — no place, pin location, or POI required. Joke tone only; no quit/wellness/can tracking.
+| Upper Deck | Stadium / upper level |
+| Interstate | Highway |
+| First Lip Pillow | 1 lifetime tuck |
+| Ten Deep / Fifty Deep / Hundred Club | 10 / 50 / 100 lifetime |
+| First Cool Mint | Cool Mint flavor |
+| Flavor Tourist / Full Flight | 5 / 10 distinct flavors |
+| Mint Machine | 5 mint-family tucks |
+| Zynbabwe | 5 US states |
 
 ---
 
@@ -102,50 +132,31 @@ Lifetime milestone badges unlock by successful Tucked tap count only — no plac
 | `lipmap_weekly` | $0.99 | Secondary; no trial |
 
 - Title: **Full Map**
-- Body: All-time pins. Badges. Friends. Weekly location league.
-- Primary CTA: **$9.99/year** — “19¢ a week”
-- Secondary CTA: **$0.99/week**
-- Restore Purchases.
-- Hard paywall when **20 tucks** OR **7 days since first tuck** (whichever first).
-- Free: last 7 days pins, no friends league, badges visible but locked art.
-- No monthly product.
+- Hard paywall: **20 tucks** OR **7 days since first tuck**
+- Free: last 7 days pins; league locked
+- No monthly. No ZYN in product display names.
 
 ---
 
 ## Legal / privacy
 
 - 18+
-- Location usage string: “Lip Map drops a pin when you tap Tucked.”
-- Location only on button tap
-- No tobacco logos / can icon
-- Icon: simple map pin on plain background
+- Location: “Lip Map drops a pin when you tap Tucked.”
+- Contacts: “Lip Map uses Contacts so you can invite friends to compare unique places — entertainment only.”
+- URL scheme: `lipmap://`
 
 ---
 
-## App Store text
+## Mac setup
 
-**Name:** Lip Map
+```bash
+git pull origin master
+open LipMap.xcodeproj
+```
 
-**Subtitle:** Pouch Pins
+Xcode 15+ (iOS 17 SDK). Pick a Personal Team, run on simulator or device. Linux hosts cannot compile the iOS target.
 
-**Description:**
-
-Lip Map is a joke map for pouch people. Tap Tucked when you put one in. We drop a pin. That’s the whole bit.
-
-Share a 6-digit code with friends (they accept your follow request), peek at their pins, and climb a weekly league ranked by unique places — not volume. Unlock ridiculous badges like ZYNachino, Gate B12, Ten Deep, and Hundred Club.
-
-Entertainment only. 18+. Not a quit app. Not wellness. Just pins.
-
-**Keywords:** pouch,map,pins,friends,joke,league,badges,location,entertainment,social
-
----
-
-## Ship order
-
-1. Tucked + local pins + map + today count
-2. Badges
-3. StoreKit yearly + weekly
-4. Friends
+Personal Team signing: entitlements stay empty (no iCloud). CloudKit later with paid Apple Developer Program.
 
 ---
 
@@ -156,11 +167,6 @@ LipMap/
   LipMap/           # app sources
   LipMap.xcodeproj
   LipMapTests/
+  docs/             # icon previews (v5 locked)
   README.md
 ```
-
-## Mac setup
-
-Open `LipMap.xcodeproj` on a Mac with Xcode 15+ (iOS 17 SDK). Linux hosts cannot compile or run the iOS target.
-
-Personal Team signing requires no iCloud capability (entitlements stay empty). Add CloudKit later with a paid Apple Developer Program account.

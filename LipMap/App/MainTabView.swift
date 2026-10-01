@@ -7,15 +7,19 @@ struct MainTabView: View {
 
     var body: some View {
         @Bindable var appModel = appModel
-        TabView {
+        TabView(selection: $appModel.selectedTab) {
             HomeView()
                 .tabItem { Label("Home", systemImage: "circle.fill") }
+                .tag(0)
             PinsMapView()
                 .tabItem { Label("Map", systemImage: "map") }
+                .tag(1)
             BadgesView()
                 .tabItem { Label("Badges", systemImage: "rosette") }
+                .tag(2)
             FriendsView()
                 .tabItem { Label("Friends", systemImage: "person.2") }
+                .tag(3)
         }
         .tint(LipMapTheme.accent)
         .onAppear {

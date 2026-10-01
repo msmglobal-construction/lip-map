@@ -45,6 +45,14 @@ struct BadgesView: View {
                 .ignoresSafeArea()
             )
             .navigationTitle("Badges")
+            .safeAreaInset(edge: .top) {
+                Text("Lip pillow lore. Zynbabwe energy. No quit medals.")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal)
+                    .padding(.bottom, 4)
+            }
             .sheet(isPresented: Binding(
                 get: { manualPinID != nil },
                 set: { if !$0 { manualPinID = nil } }

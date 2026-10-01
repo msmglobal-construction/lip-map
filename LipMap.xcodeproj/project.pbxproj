@@ -30,6 +30,12 @@
 		A20000000000000000000015 /* BadgeEvaluatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000015 /* BadgeEvaluatorTests.swift */; };
 		A20000000000000000000016 /* LeagueRankingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000016 /* LeagueRankingTests.swift */; };
 		A2000000000000000000001A /* POITagger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001A /* POITagger.swift */; };
+		A2000000000000000000001B /* ContactInvitePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001B /* ContactInvitePicker.swift */; };
+		A2000000000000000000001C /* DashboardInsights.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001C /* DashboardInsights.swift */; };
+		A2000000000000000000001D /* USState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001D /* USState.swift */; };
+		A2000000000000000000001E /* RegionGeocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001E /* RegionGeocoder.swift */; };
+		A20000000000000000000020 /* DashboardInsightsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000020 /* DashboardInsightsTests.swift */; };
+		A20000000000000000000021 /* InviteLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000021 /* InviteLinkTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +75,13 @@
 		B20000000000000000000018 /* LipMapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LipMapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000019 /* LipMap.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LipMap.entitlements; sourceTree = "<group>"; };
 		B2000000000000000000001A /* POITagger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POITagger.swift; sourceTree = "<group>"; };
+		B2000000000000000000001B /* ContactInvitePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactInvitePicker.swift; sourceTree = "<group>"; };
+		B2000000000000000000001C /* DashboardInsights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardInsights.swift; sourceTree = "<group>"; };
+		B2000000000000000000001D /* USState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USState.swift; sourceTree = "<group>"; };
+		B2000000000000000000001E /* RegionGeocoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionGeocoder.swift; sourceTree = "<group>"; };
+		B2000000000000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B20000000000000000000020 /* DashboardInsightsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardInsightsTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000021 /* InviteLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLinkTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +120,7 @@
 				G20000000000000000000008 /* Features */,
 				G20000000000000000000009 /* Resources */,
 				B20000000000000000000019 /* LipMap.entitlements */,
+				B2000000000000000000001F /* Info.plist */,
 			);
 			path = LipMap;
 			sourceTree = "<group>";
@@ -117,6 +131,8 @@
 				B20000000000000000000014 /* PaywallGateTests.swift */,
 				B20000000000000000000015 /* BadgeEvaluatorTests.swift */,
 				B20000000000000000000016 /* LeagueRankingTests.swift */,
+				B20000000000000000000020 /* DashboardInsightsTests.swift */,
+				B20000000000000000000021 /* InviteLinkTests.swift */,
 			);
 			path = LipMapTests;
 			sourceTree = "<group>";
@@ -148,6 +164,8 @@
 				B20000000000000000000006 /* Friend.swift */,
 				B20000000000000000000007 /* PaywallGate.swift */,
 				B20000000000000000000008 /* LeagueRanking.swift */,
+				B2000000000000000000001C /* DashboardInsights.swift */,
+				B2000000000000000000001D /* USState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -160,6 +178,7 @@
 				B2000000000000000000000B /* BadgeEvaluator.swift */,
 				B2000000000000000000000C /* FriendsService.swift */,
 				B2000000000000000000001A /* POITagger.swift */,
+				B2000000000000000000001E /* RegionGeocoder.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -213,6 +232,7 @@
 			isa = PBXGroup;
 			children = (
 				B20000000000000000000010 /* FriendsView.swift */,
+				B2000000000000000000001B /* ContactInvitePicker.swift */,
 			);
 			path = Friends;
 			sourceTree = "<group>";
@@ -330,10 +350,14 @@
 				A2000000000000000000000B /* BadgeEvaluator.swift in Sources */,
 				A2000000000000000000000C /* FriendsService.swift in Sources */,
 				A2000000000000000000001A /* POITagger.swift in Sources */,
+				A2000000000000000000001E /* RegionGeocoder.swift in Sources */,
+				A2000000000000000000001C /* DashboardInsights.swift in Sources */,
+				A2000000000000000000001D /* USState.swift in Sources */,
 				A2000000000000000000000D /* HomeView.swift in Sources */,
 				A2000000000000000000000E /* PinsMapView.swift in Sources */,
 				A2000000000000000000000F /* BadgesView.swift in Sources */,
 				A20000000000000000000010 /* FriendsView.swift in Sources */,
+				A2000000000000000000001B /* ContactInvitePicker.swift in Sources */,
 				A20000000000000000000011 /* PaywallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,6 +369,8 @@
 				A20000000000000000000014 /* PaywallGateTests.swift in Sources */,
 				A20000000000000000000015 /* BadgeEvaluatorTests.swift in Sources */,
 				A20000000000000000000016 /* LeagueRankingTests.swift in Sources */,
+				A20000000000000000000020 /* DashboardInsightsTests.swift in Sources */,
+				A20000000000000000000021 /* InviteLinkTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,8 +434,10 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LipMap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Lip Map";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Lip Map uses Contacts so you can invite friends to compare unique places — entertainment only.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lip Map drops a pin when you tap Tucked.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -441,8 +469,10 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LipMap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Lip Map";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Lip Map uses Contacts so you can invite friends to compare unique places — entertainment only.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lip Map drops a pin when you tap Tucked.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

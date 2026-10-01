@@ -12,22 +12,28 @@ import UIKit
 final class AppModel {
     let location: LocationProviding
     let entitlements: EntitlementServing
+    let regionGeocoder: any RegionLookingUp
     var friendsService: FriendsService?
     var isTucking = false
     var tuckError: String?
     var showPaywall = false
     var pendingFlavorPinID: UUID?
     var didShowLocationSentence = false
+    /// Deep-link / invite code waiting to become a follow request.
+    var pendingInviteCode: String?
+    var selectedTab: Int = 0
 
     private let defaults: UserDefaults
 
     init(
         location: LocationProviding? = nil,
         entitlements: EntitlementServing? = nil,
+        regionGeocoder: (any RegionLookingUp)? = nil,
         defaults: UserDefaults = .standard
     ) {
         self.location = location ?? LocationProvider()
         self.entitlements = entitlements ?? EntitlementStore()
+        self.regionGeocoder = regionGeocoder ?? RegionGeocoder()
         self.defaults = defaults
         self.didShowLocationSentence = defaults.bool(forKey: Keys.locationSentenceShown)
     }
@@ -61,7 +67,7 @@ final class AppModel {
         return pins.filter { gate.isPinVisible($0.timestamp) }
     }
 
-    /// Primary action: haptic → location → save pin.
+    /// Primary action: haptic → location → save pin. Flavor sheet is optional and never blocks the tap.
     func tuck(modelContext: ModelContext, existingPins: [TuckPin]) async {
         guard !isTucking else { return }
         isTucking = true
@@ -89,21 +95,23 @@ final class AppModel {
                 longitude: coordinate.longitude,
                 timestamp: .now
             )
-            // First pin auto-earns First One via evaluator; no extra work.
-            if existingPins.isEmpty {
-                // no-op — BadgeEvaluator handles .firstOne
-            }
             modelContext.insert(pin)
             try modelContext.save()
             pendingFlavorPinID = pin.id
 
-            // POI tags in background — must not slow first tap.
+            // POI + region geocode in background — must not slow first tap.
             Task {
-                let tags = await POITagger.suggestTags(for: coordinate)
+                async let tagsTask = POITagger.suggestTags(for: coordinate)
+                async let regionTask = regionGeocoder.lookup(coordinate: coordinate)
+                let tags = await tagsTask
+                let region = await regionTask
                 if !tags.isEmpty {
                     pin.tags = Array(Set(pin.tags + tags))
-                    try? modelContext.save()
                 }
+                if let code = region.regionCode { pin.regionCode = code }
+                if let name = region.regionName { pin.regionName = name }
+                if let locality = region.locality { pin.locality = locality }
+                try? modelContext.save()
             }
 
             let all = existingPins + [pin]
@@ -126,6 +134,33 @@ final class AppModel {
         pendingFlavorPinID = nil
     }
 
+    /// Delete an accidental / unwanted tuck. Updates map, counts, league, badges via SwiftData.
+    func deletePin(_ pin: TuckPin, modelContext: ModelContext, remainingPins: [TuckPin]) async {
+        if pendingFlavorPinID == pin.id {
+            pendingFlavorPinID = nil
+        }
+        modelContext.delete(pin)
+        try? modelContext.save()
+        let week = LeagueRanking.weekInterval()
+        let keys = LeagueRanking.placeKeys(from: remainingPins.filter { $0.id != pin.id }, in: week)
+        await friendsService?.publishWeeklyPlaces(keys)
+    }
+
+    func handleIncomingURL(_ url: URL) {
+        guard let code = InviteLink.parseCode(from: url) else { return }
+        pendingInviteCode = code
+        selectedTab = 3 // Friends
+    }
+
+    /// Apply a pending invite code as an outgoing follow request (after friends service is ready).
+    @discardableResult
+    func consumePendingInvite(displayName: String? = nil) throws -> FollowRequest? {
+        guard let code = pendingInviteCode else { return nil }
+        guard let friendsService else { return nil }
+        pendingInviteCode = nil
+        return try friendsService.sendFollowRequest(code: code, displayName: displayName)
+    }
+
     private func fireHaptic() {
         #if canImport(UIKit)
         let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -135,5 +170,41 @@ final class AppModel {
 
     private enum Keys {
         static let locationSentenceShown = "lipmap.locationSentenceShown"
+    }
+}
+
+enum InviteLink {
+    static let scheme = "lipmap"
+
+    static func makeURL(code: String) -> URL {
+        var components = URLComponents()
+        components.scheme = scheme
+        components.host = "invite"
+        components.queryItems = [URLQueryItem(name: "code", value: FriendsService.normalize(code))]
+        return components.url ?? URL(string: "\(scheme)://invite?code=\(FriendsService.normalize(code))")!
+    }
+
+    static func shareMessage(myCode: String) -> String {
+        let link = makeURL(code: myCode).absoluteString
+        return "Add me on Lip Map — tap to send a follow request: \(link)\n(Code \(myCode) if the link doesn’t open.)"
+    }
+
+    static func parseCode(from url: URL) -> String? {
+        guard url.scheme?.lowercased() == scheme else { return nil }
+        if let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+           let raw = items.first(where: { $0.name == "code" })?.value {
+            let code = FriendsService.normalize(raw)
+            return code.count == 6 ? code : nil
+        }
+        // lipmap://join/123456
+        let parts = url.path.split(separator: "/").map(String.init)
+        if let last = parts.last {
+            let code = FriendsService.normalize(last)
+            if code.count == 6 { return code }
+        }
+        if let host = url.host, host.count == 6, host.allSatisfy(\.isNumber) {
+            return host
+        }
+        return nil
     }
 }

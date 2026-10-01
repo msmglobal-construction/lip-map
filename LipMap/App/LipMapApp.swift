@@ -27,6 +27,9 @@ struct LipMapApp: App {
                 .task {
                     await appModel.entitlements.refresh()
                 }
+                .onOpenURL { url in
+                    appModel.handleIncomingURL(url)
+                }
         }
         .modelContainer(sharedModelContainer)
     }

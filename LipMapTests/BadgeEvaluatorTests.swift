@@ -60,4 +60,33 @@ final class BadgeEvaluatorTests: XCTestCase {
         XCTAssertTrue(unlocked.contains(.fiftyDeep))
         XCTAssertTrue(unlocked.contains(.hundredClub))
     }
+
+    func testFirstCoolMintFlavorBadge() {
+        let pin = TuckPin(latitude: 1, longitude: 2, flavor: .coolMint)
+        XCTAssertTrue(BadgeEvaluator.unlocked(pins: [pin]).contains(.firstCoolMint))
+    }
+
+    func testFlavorTouristAtFiveDistinct() {
+        let flavors: [TuckFlavor] = [.coolMint, .wintergreen, .citrus, .coffee, .vanilla]
+        let pins = flavors.enumerated().map { i, flavor in
+            TuckPin(latitude: 0, longitude: 0, timestamp: Date().addingTimeInterval(Double(i)), flavor: flavor)
+        }
+        let unlocked = BadgeEvaluator.unlocked(pins: pins)
+        XCTAssertTrue(unlocked.contains(.flavorTourist))
+        XCTAssertFalse(unlocked.contains(.fullFlight))
+    }
+
+    func testZynbabweAtFiveStates() {
+        let codes = ["TX", "CA", "NY", "FL", "WA"]
+        let pins = codes.enumerated().map { i, code in
+            TuckPin(
+                latitude: Double(i),
+                longitude: Double(i),
+                timestamp: Date().addingTimeInterval(Double(i)),
+                regionCode: code,
+                regionName: USState.resolve(code: code, name: nil)?.name
+            )
+        }
+        XCTAssertTrue(BadgeEvaluator.unlocked(pins: pins).contains(.zynbabwe))
+    }
 }
