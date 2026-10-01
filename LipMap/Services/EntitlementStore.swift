@@ -23,19 +23,17 @@ final class EntitlementStore: EntitlementServing {
     private(set) var isSubscribed = false
     private(set) var yearlyProduct: Product?
     private(set) var weeklyProduct: Product?
-    /// Task.cancel() is thread-safe; nonisolated(unsafe) lets deinit cancel under Swift 6.
-    private nonisolated(unsafe) var updatesTask: Task<Void, Never>?
+    /// Holds the StoreKit updates task so `deinit` can cancel without touching main-actor state.
+    private let updatesBox = TransactionUpdatesBox()
 
     init() {
-        updatesTask = Task { [weak self] in
-            for await _ in Transaction.updates {
-                await self?.refresh()
-            }
+        updatesBox.start { [weak self] in
+            await self?.refresh()
         }
     }
 
     deinit {
-        updatesTask?.cancel()
+        updatesBox.cancel()
     }
 
     func refresh() async {
@@ -89,6 +87,30 @@ final class EntitlementStore: EntitlementServing {
         case .verified(let value):
             return value
         }
+    }
+}
+
+/// Thread-safe holder so `@MainActor` types can cancel a StoreKit listener from `deinit`.
+private final class TransactionUpdatesBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var task: Task<Void, Never>?
+
+    func start(onUpdate: @escaping @Sendable () async -> Void) {
+        let task = Task {
+            for await _ in Transaction.updates {
+                await onUpdate()
+            }
+        }
+        lock.lock()
+        self.task = task
+        lock.unlock()
+    }
+
+    func cancel() {
+        lock.lock()
+        task?.cancel()
+        task = nil
+        lock.unlock()
     }
 }
 
