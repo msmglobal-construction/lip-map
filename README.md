@@ -159,4 +159,8 @@ LipMap/
   README.md
 ```
 
+## Mac setup
+
 Open `LipMap.xcodeproj` on a Mac with Xcode 15+ (iOS 17 SDK). Linux hosts cannot compile or run the iOS target.
+
+Personal Team signing requires no iCloud capability (entitlements stay empty). Add CloudKit later with a paid Apple Developer Program account.
