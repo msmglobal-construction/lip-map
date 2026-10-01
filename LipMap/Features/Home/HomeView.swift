@@ -8,6 +8,7 @@ struct HomeView: View {
 
     var body: some View {
         let today = appModel.todayCount(pins: pins)
+        let lifetime = BadgeEvaluator.lifetimeTuckCount(pins: pins)
         let last = appModel.lastTuck(pins: pins)
         let pending = pins.first { $0.id == appModel.pendingFlavorPinID }
 
@@ -31,6 +32,12 @@ struct HomeView: View {
                 Text(today == 1 ? "tuck today" : "tucks today")
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
+
+                Text("\(lifetime) lifetime")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(LipMapTheme.ink.opacity(0.7))
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: lifetime)
 
                 if let last {
                     Text("Last tuck \(last.timestamp.formatted(date: .omitted, time: .shortened))")

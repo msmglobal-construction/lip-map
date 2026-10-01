@@ -9,7 +9,8 @@ struct LipMapApp: App {
         let schema = Schema([
             TuckPin.self,
             FriendProfile.self,
-            FriendLink.self
+            FriendLink.self,
+            FollowRequest.self
         ])
         let config = ModelConfiguration(isStoredInMemoryOnly: false)
         do {

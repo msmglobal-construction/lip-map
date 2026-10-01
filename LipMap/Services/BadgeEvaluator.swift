@@ -1,15 +1,27 @@
 import Foundation
 
 enum BadgeEvaluator {
+    /// Lifetime tuck count = successful Tucked taps (one pin per success).
+    static func lifetimeTuckCount(pins: [TuckPin]) -> Int {
+        pins.count
+    }
+
     static func unlocked(
         pins: [TuckPin],
         now: Date = .now
     ) -> Set<LipBadge> {
         var unlocked = Set<LipBadge>()
         let sorted = pins.sorted { $0.timestamp < $1.timestamp }
-        guard let first = sorted.first else { return unlocked }
+        let lifetime = lifetimeTuckCount(pins: pins)
 
-        unlocked.insert(.firstOne)
+        // Count-only milestones — no place / POI / map requirement.
+        for badge in LipBadge.allCases where badge.isLifetimeMilestone {
+            if let threshold = badge.lifetimeTuckThreshold, lifetime >= threshold {
+                unlocked.insert(badge)
+            }
+        }
+
+        guard !sorted.isEmpty else { return unlocked }
 
         for pin in sorted {
             let tags = Set(pin.tags.map { $0.lowercased() })
@@ -61,7 +73,6 @@ enum BadgeEvaluator {
             }
         }
 
-        _ = first
         _ = now
         return unlocked
     }

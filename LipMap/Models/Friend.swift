@@ -22,6 +22,7 @@ final class FriendProfile {
     }
 }
 
+/// Accepted follow only — pins / league sync after the peer accepts your request.
 @Model
 final class FriendLink {
     var id: UUID
@@ -59,4 +60,52 @@ final class FriendLink {
     }
 
     var uniquePlaceCount: Int { Set(weeklyPlaceKeys).count }
+}
+
+enum FollowRequestDirection: String, Codable, Sendable {
+    case outgoing
+    case incoming
+}
+
+enum FollowRequestStatus: String, Codable, Sendable {
+    case pending
+    case accepted
+    case declined
+}
+
+/// Pending (or resolved) follow request. Accepted follows live on `FriendLink`.
+@Model
+final class FollowRequest {
+    var id: UUID
+    var peerCode: String
+    var displayName: String
+    var directionRaw: String
+    var statusRaw: String
+    var createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        peerCode: String,
+        displayName: String,
+        direction: FollowRequestDirection,
+        status: FollowRequestStatus = .pending,
+        createdAt: Date = .now
+    ) {
+        self.id = id
+        self.peerCode = peerCode
+        self.displayName = displayName
+        self.directionRaw = direction.rawValue
+        self.statusRaw = status.rawValue
+        self.createdAt = createdAt
+    }
+
+    var direction: FollowRequestDirection {
+        get { FollowRequestDirection(rawValue: directionRaw) ?? .outgoing }
+        set { directionRaw = newValue.rawValue }
+    }
+
+    var status: FollowRequestStatus {
+        get { FollowRequestStatus(rawValue: statusRaw) ?? .pending }
+        set { statusRaw = newValue.rawValue }
+    }
 }

@@ -6,7 +6,7 @@ import Observation
 import CloudKit
 #endif
 
-/// Friends via 6-digit codes. CloudKit when configured; otherwise local links + published place keys.
+/// Friends via 6-digit codes + follow requests. CloudKit when configured; otherwise local mailbox.
 @Observable
 @MainActor
 final class FriendsService {
@@ -17,7 +17,10 @@ final class FriendsService {
     private let defaults: UserDefaults
 
     private(set) var myCode: String
+    /// Accepted follows only — pins and league.
     private(set) var friends: [FriendLink] = []
+    private(set) var incomingPending: [FollowRequest] = []
+    private(set) var outgoingPending: [FollowRequest] = []
 
     init(modelContext: ModelContext, defaults: UserDefaults = .standard) {
         self.modelContext = modelContext
@@ -30,37 +33,84 @@ final class FriendsService {
         }
         ensureProfile()
         reload()
+        ingestMailbox()
     }
 
     func reload() {
-        let descriptor = FetchDescriptor<FriendLink>(sortBy: [SortDescriptor(\.addedAt, order: .forward)])
-        friends = (try? modelContext.fetch(descriptor)) ?? []
+        let friendDescriptor = FetchDescriptor<FriendLink>(sortBy: [SortDescriptor(\.addedAt, order: .forward)])
+        friends = (try? modelContext.fetch(friendDescriptor)) ?? []
+
+        let requestDescriptor = FetchDescriptor<FollowRequest>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        let all = (try? modelContext.fetch(requestDescriptor)) ?? []
+        incomingPending = all.filter { $0.direction == .incoming && $0.status == .pending }
+        outgoingPending = all.filter { $0.direction == .outgoing && $0.status == .pending }
     }
 
+    /// Type their 6-digit code → send a follow request (not an instant follow).
     @discardableResult
-    func addFriend(code raw: String, displayName: String? = nil) throws -> FriendLink {
+    func sendFollowRequest(code raw: String, displayName: String? = nil) throws -> FollowRequest {
         let code = Self.normalize(raw)
         guard code.count == 6, code.allSatisfy(\.isNumber) else {
             throw FriendsError.invalidCode
         }
         guard code != myCode else { throw FriendsError.cannotAddSelf }
         if friends.contains(where: { $0.code == code }) {
-            throw FriendsError.alreadyAdded
+            throw FriendsError.alreadyFollowing
         }
-        let link = FriendLink(
-            code: code,
-            displayName: displayName ?? "Friend \(code)"
+        if outgoingPending.contains(where: { $0.peerCode == code }) {
+            throw FriendsError.requestAlreadyPending
+        }
+
+        let name = displayName ?? "Friend \(code)"
+        let request = FollowRequest(
+            peerCode: code,
+            displayName: name,
+            direction: .outgoing,
+            status: .pending
         )
-        modelContext.insert(link)
+        modelContext.insert(request)
+        try modelContext.save()
+        postOutgoingToMailbox(toCode: code)
+        reload()
+        return request
+    }
+
+    func acceptRequest(_ request: FollowRequest) throws {
+        guard request.direction == .incoming, request.status == .pending else { return }
+        request.status = .accepted
+        postAcceptanceToMailbox(requesterCode: request.peerCode)
         try modelContext.save()
         reload()
-        Task { await syncFriend(link) }
-        return link
+    }
+
+    /// Decline (or ignore) an incoming request — no follow is created.
+    func declineRequest(_ request: FollowRequest) throws {
+        guard request.direction == .incoming, request.status == .pending else { return }
+        request.status = .declined
+        removeIncomingFromMailbox(fromCode: request.peerCode)
+        postDeclineToMailbox(requesterCode: request.peerCode)
+        try modelContext.save()
+        reload()
+    }
+
+    /// Cancel an outgoing request you sent (optional cleanup).
+    func cancelOutgoingRequest(_ request: FollowRequest) throws {
+        guard request.direction == .outgoing, request.status == .pending else { return }
+        removeOutgoingFromMailbox(toCode: request.peerCode)
+        modelContext.delete(request)
+        try modelContext.save()
+        reload()
     }
 
     func removeFriend(_ friend: FriendLink) throws {
         modelContext.delete(friend)
         try modelContext.save()
+        reload()
+    }
+
+    /// Pull mailbox updates: new incoming requests, acceptances, declines.
+    func refreshRequests() {
+        ingestMailbox()
         reload()
     }
 
@@ -74,6 +124,7 @@ final class FriendsService {
     }
 
     func refreshFriendsLeague() async {
+        refreshRequests()
         for friend in friends {
             await syncFriend(friend)
         }
@@ -81,12 +132,130 @@ final class FriendsService {
     }
 
     func leagueEntries(myName: String, myWeeklyPlaceKeys: Set<String>) -> [LeagueEntry] {
+        // League uses accepted follows only.
         LeagueRanking.rank(
             myCode: myCode,
             myName: myName,
             myWeeklyPlaceKeys: myWeeklyPlaceKeys,
             friends: friends.map { ($0.code, $0.displayName, Set($0.weeklyPlaceKeys)) }
         )
+    }
+
+    // MARK: - Mailbox (local / demo until CloudKit)
+
+    private func postOutgoingToMailbox(toCode: String) {
+        var inbox = mailboxIncoming(for: toCode)
+        if !inbox.contains(where: { $0["from"] == myCode }) {
+            inbox.append(["from": myCode, "name": "Friend \(myCode)"])
+            setMailboxIncoming(inbox, for: toCode)
+        }
+    }
+
+    private func removeOutgoingFromMailbox(toCode: String) {
+        var inbox = mailboxIncoming(for: toCode)
+        inbox.removeAll { $0["from"] == myCode }
+        setMailboxIncoming(inbox, for: toCode)
+    }
+
+    private func removeIncomingFromMailbox(fromCode: String) {
+        var inbox = mailboxIncoming(for: myCode)
+        inbox.removeAll { $0["from"] == fromCode }
+        setMailboxIncoming(inbox, for: myCode)
+    }
+
+    private func postAcceptanceToMailbox(requesterCode: String) {
+        var accepted = mailboxAccepted(for: requesterCode)
+        if !accepted.contains(myCode) {
+            accepted.append(myCode)
+            setMailboxAccepted(accepted, for: requesterCode)
+        }
+        removeIncomingFromMailbox(fromCode: requesterCode)
+    }
+
+    private func postDeclineToMailbox(requesterCode: String) {
+        var declined = mailboxDeclined(for: requesterCode)
+        if !declined.contains(myCode) {
+            declined.append(myCode)
+            setMailboxDeclined(declined, for: requesterCode)
+        }
+    }
+
+    private func ingestMailbox() {
+        // Incoming requests addressed to me.
+        for entry in mailboxIncoming(for: myCode) {
+            guard let from = entry["from"], from.count == 6, from != myCode else { continue }
+            if friends.contains(where: { $0.code == from }) { continue }
+            let existing = fetchRequest(peerCode: from, direction: .incoming)
+            if existing == nil {
+                let name = entry["name"] ?? "Friend \(from)"
+                modelContext.insert(
+                    FollowRequest(peerCode: from, displayName: name, direction: .incoming, status: .pending)
+                )
+            }
+        }
+
+        // Acceptances of my outgoing requests → create FriendLink, mark accepted.
+        let acceptedForMe = mailboxAccepted(for: myCode)
+        for code in acceptedForMe {
+            if let outgoing = fetchRequest(peerCode: code, direction: .outgoing),
+               outgoing.status == .pending {
+                outgoing.status = .accepted
+            }
+            if !friends.contains(where: { $0.code == code }) {
+                let name = fetchRequest(peerCode: code, direction: .outgoing)?.displayName ?? "Friend \(code)"
+                let link = FriendLink(code: code, displayName: name)
+                modelContext.insert(link)
+                Task { await syncFriend(link) }
+            }
+            // Clear from pending inbox on their side already handled; drop our accepted token after apply.
+        }
+        if !acceptedForMe.isEmpty {
+            setMailboxAccepted([], for: myCode)
+        }
+
+        // Declines of my outgoing requests.
+        let declinedForMe = mailboxDeclined(for: myCode)
+        for code in declinedForMe {
+            if let outgoing = fetchRequest(peerCode: code, direction: .outgoing),
+               outgoing.status == .pending {
+                outgoing.status = .declined
+            }
+        }
+        if !declinedForMe.isEmpty {
+            setMailboxDeclined([], for: myCode)
+        }
+
+        try? modelContext.save()
+    }
+
+    private func fetchRequest(peerCode: String, direction: FollowRequestDirection) -> FollowRequest? {
+        let descriptor = FetchDescriptor<FollowRequest>()
+        let all = (try? modelContext.fetch(descriptor)) ?? []
+        return all.first { $0.peerCode == peerCode && $0.direction == direction }
+    }
+
+    private func mailboxIncoming(for code: String) -> [[String: String]] {
+        defaults.array(forKey: Keys.incomingPrefix + code) as? [[String: String]] ?? []
+    }
+
+    private func setMailboxIncoming(_ value: [[String: String]], for code: String) {
+        defaults.set(value, forKey: Keys.incomingPrefix + code)
+    }
+
+    private func mailboxAccepted(for code: String) -> [String] {
+        defaults.stringArray(forKey: Keys.acceptedPrefix + code) ?? []
+    }
+
+    private func setMailboxAccepted(_ value: [String], for code: String) {
+        defaults.set(value, forKey: Keys.acceptedPrefix + code)
+    }
+
+    private func mailboxDeclined(for code: String) -> [String] {
+        defaults.stringArray(forKey: Keys.declinedPrefix + code) ?? []
+    }
+
+    private func setMailboxDeclined(_ value: [String], for code: String) {
+        defaults.set(value, forKey: Keys.declinedPrefix + code)
     }
 
     // MARK: - Private
@@ -169,19 +338,24 @@ final class FriendsService {
         static let myCode = "lipmap.friends.myCode"
         static let myWeeklyPlaces = "lipmap.friends.myWeeklyPlaces"
         static let peerPrefix = "lipmap.friends.peer."
+        static let incomingPrefix = "lipmap.friends.incoming."
+        static let acceptedPrefix = "lipmap.friends.accepted."
+        static let declinedPrefix = "lipmap.friends.declined."
     }
 }
 
 enum FriendsError: Error, LocalizedError {
     case invalidCode
     case cannotAddSelf
-    case alreadyAdded
+    case alreadyFollowing
+    case requestAlreadyPending
 
     var errorDescription: String? {
         switch self {
         case .invalidCode: return "Enter a 6-digit code."
         case .cannotAddSelf: return "That’s your code."
-        case .alreadyAdded: return "Already following."
+        case .alreadyFollowing: return "Already following."
+        case .requestAlreadyPending: return "Request already pending."
         }
     }
 }

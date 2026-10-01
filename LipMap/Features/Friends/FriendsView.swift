@@ -10,6 +10,7 @@ struct FriendsView: View {
     @Query(sort: \TuckPin.timestamp, order: .reverse) private var pins: [TuckPin]
     @State private var pasteCode = ""
     @State private var errorText: String?
+    @State private var statusText: String?
     @State private var copied = false
 
     var body: some View {
@@ -44,17 +45,17 @@ struct FriendsView: View {
                         }
                     }
                 } footer: {
-                    Text("Share your 6-digit code. When someone types it, they follow you and see your pins.")
+                    Text("Share your 6-digit code. When someone types it, they send a follow request — you accept before they follow you or see your pins.")
                 }
 
-                Section("Follow") {
+                Section("Send request") {
                     HStack {
                         TextField("Their 6-digit code", text: $pasteCode)
                             .keyboardType(.numberPad)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        Button("Follow") {
-                            followFriend()
+                        Button("Request") {
+                            sendRequest()
                         }
                         .disabled(pasteCode.filter(\.isNumber).count != 6)
                     }
@@ -63,8 +64,67 @@ struct FriendsView: View {
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
+                    if let statusText {
+                        Text(statusText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 } footer: {
-                    Text("Typing their code is the follow. No search, no discover, no directory.")
+                    Text("Typing their code sends a follow request. No search, no discover, no directory.")
+                }
+
+                if let incoming = friends?.incomingPending, !incoming.isEmpty {
+                    Section("Added you") {
+                        ForEach(incoming, id: \.id) { request in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(request.displayName)
+                                    Text(request.peerCode)
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button("Accept") {
+                                    try? friends?.acceptRequest(request)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(LipMapTheme.accent)
+                                Button("Decline") {
+                                    try? friends?.declineRequest(request)
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    } footer: {
+                        Text("Accept to let them follow you and see your pins. Decline or ignore leaves them out.")
+                    }
+                }
+
+                if let outgoing = friends?.outgoingPending, !outgoing.isEmpty {
+                    Section("Pending") {
+                        ForEach(outgoing, id: \.id) { request in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(request.displayName)
+                                    Text(request.peerCode)
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Text("Waiting…")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .onDelete { indexSet in
+                            guard let friends else { return }
+                            for index in indexSet {
+                                try? friends.cancelOutgoingRequest(friends.outgoingPending[index])
+                            }
+                        }
+                    } footer: {
+                        Text("They haven’t accepted yet. Swipe to cancel.")
+                    }
                 }
 
                 Section("Following") {
@@ -90,11 +150,11 @@ struct FriendsView: View {
                             }
                         }
                     } else {
-                        Text("Not following anyone yet. Enter a code above.")
+                        Text("Not following anyone yet. Send a request above — they have to accept.")
                             .foregroundStyle(.secondary)
                     }
                 } footer: {
-                    Text("Swipe to unfollow. League ranks unique places this week — not pouch count.")
+                    Text("Swipe to unfollow. League ranks unique places this week among accepted follows — not pouch count.")
                 }
 
                 Section {
@@ -140,7 +200,7 @@ struct FriendsView: View {
                 } header: {
                     Text("Weekly league")
                 } footer: {
-                    Text("Unique pin locations this week win. Never most tucks.")
+                    Text("Unique pin locations this week win. Never most tucks. Accepted follows only.")
                 }
             }
             .navigationTitle("Friends")
@@ -150,6 +210,7 @@ struct FriendsView: View {
                 await friends?.refreshFriendsLeague()
             }
             .onAppear {
+                friends?.refreshRequests()
                 Task {
                     await friends?.publishWeeklyPlaces(myKeys)
                 }
@@ -157,11 +218,13 @@ struct FriendsView: View {
         }
     }
 
-    private func followFriend() {
+    private func sendRequest() {
         errorText = nil
+        statusText = nil
         do {
-            _ = try appModel.friendsService?.addFriend(code: pasteCode)
+            _ = try appModel.friendsService?.sendFollowRequest(code: pasteCode)
             pasteCode = ""
+            statusText = "Request sent — waiting for them to accept."
         } catch {
             errorText = error.localizedDescription
         }

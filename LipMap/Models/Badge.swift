@@ -13,6 +13,10 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
     case upperDeck
     case interstate
     case firstOne
+    /// Lifetime tuck count milestones (count-only; no place/POI required).
+    case tenDeep
+    case fiftyDeep
+    case hundredClub
 
     var id: String { rawValue }
 
@@ -30,6 +34,9 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .upperDeck: return "Upper Deck"
         case .interstate: return "Interstate"
         case .firstOne: return "First One"
+        case .tenDeep: return "Ten Deep"
+        case .fiftyDeep: return "Fifty Deep"
+        case .hundredClub: return "Hundred Club"
         }
     }
 
@@ -46,7 +53,10 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .deerStand: return "Manual — woods hour"
         case .upperDeck: return "Upper level / stadium"
         case .interstate: return "Highway tuck"
-        case .firstOne: return "Your first pin"
+        case .firstOne: return "1 lifetime tuck"
+        case .tenDeep: return "10 lifetime tucks"
+        case .fiftyDeep: return "50 lifetime tucks"
+        case .hundredClub: return "100 lifetime tucks"
         }
     }
 
@@ -64,6 +74,9 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
         case .upperDeck: return "stairs"
         case .interstate: return "road.lanes"
         case .firstOne: return "mappin.circle.fill"
+        case .tenDeep: return "10.circle.fill"
+        case .fiftyDeep: return "50.circle.fill"
+        case .hundredClub: return "trophy.fill"
         }
     }
 
@@ -74,6 +87,27 @@ enum LipBadge: String, CaseIterable, Identifiable, Codable {
             return true
         default:
             return false
+        }
+    }
+
+    /// Count-only milestones — no place, pin location, or POI required.
+    var isLifetimeMilestone: Bool {
+        switch self {
+        case .firstOne, .tenDeep, .fiftyDeep, .hundredClub:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// Lifetime tuck count required (successful Tucked taps).
+    var lifetimeTuckThreshold: Int? {
+        switch self {
+        case .firstOne: return 1
+        case .tenDeep: return 10
+        case .fiftyDeep: return 50
+        case .hundredClub: return 100
+        default: return nil
         }
     }
 }

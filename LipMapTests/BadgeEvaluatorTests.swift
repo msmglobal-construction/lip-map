@@ -39,4 +39,25 @@ final class BadgeEvaluatorTests: XCTestCase {
         )
         XCTAssertTrue(BadgeEvaluator.unlocked(pins: [pin]).contains(.herParentsHouse))
     }
+
+    func testLifetimeMilestonesByCountOnly() {
+        let pins = (0..<10).map { i in
+            TuckPin(latitude: 0, longitude: 0, timestamp: Date().addingTimeInterval(Double(i)))
+        }
+        let unlocked = BadgeEvaluator.unlocked(pins: pins)
+        XCTAssertEqual(BadgeEvaluator.lifetimeTuckCount(pins: pins), 10)
+        XCTAssertTrue(unlocked.contains(.firstOne))
+        XCTAssertTrue(unlocked.contains(.tenDeep))
+        XCTAssertFalse(unlocked.contains(.fiftyDeep))
+        XCTAssertFalse(unlocked.contains(.hundredClub))
+    }
+
+    func testHundredClubAt100() {
+        let pins = (0..<100).map { i in
+            TuckPin(latitude: 0, longitude: 0, timestamp: Date().addingTimeInterval(Double(i)))
+        }
+        let unlocked = BadgeEvaluator.unlocked(pins: pins)
+        XCTAssertTrue(unlocked.contains(.fiftyDeep))
+        XCTAssertTrue(unlocked.contains(.hundredClub))
+    }
 }

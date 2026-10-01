@@ -54,17 +54,17 @@ Optional flavor after save: Cool Mint / Wintergreen / Other — skip if it slows
 1. **Home** — giant Tucked, today’s count, small last tuck time
 2. **Map** — all my pins, cluster if needed, tap = time + optional flavor
 3. **Badges** — locked/unlocked grid
-4. **Friends** — your 6-digit code, type theirs to follow, following list, weekly league
+4. **Friends** — your 6-digit code, type theirs to send a follow request, Accept/Decline, following list, weekly league
 
 No extra tabs, settings mazes, onboarding essays, streak calendar. One short permission sentence on first Tucked.
 
-Friends: code-in is the follow. Type their 6-digit code → you follow them and see their pins. They follow you the same way with your code. Remove = unfollow. No public search, discover, suggested users, comments, likes, or feed.
+Friends: code-in sends a **follow request**. They must **Accept** before you follow them or see their pins. Decline/ignore leaves you out. After accept, remove = unfollow. Incoming “Added you” list + outgoing Pending state. No public search, discover, suggested users, comments, likes, or feed.
 
 ---
 
 ## League
 
-Rank by **unique pin locations this week** (distinct rounded coords/places), **not** total pouches. Never “most tucks wins”. Personal today-count on Home only.
+Rank by **unique pin locations this week** (distinct rounded coords/places) among **accepted follows only**, **not** total pouches. Never “most tucks wins”. Home shows today-count plus **lifetime** tuck count.
 
 ---
 
@@ -85,7 +85,12 @@ Enum + simple unlock rules; no badge editor.
 | Deer Stand | Manual |
 | Upper Deck | Elevated / stadium upper-level tag |
 | Interstate | Near highway / interstate |
-| First One | First pin ever |
+| First One | 1 lifetime tuck (count only) |
+| Ten Deep | 10 lifetime tucks (count only) |
+| Fifty Deep | 50 lifetime tucks (count only) |
+| Hundred Club | 100 lifetime tucks (count only) |
+
+Lifetime milestone badges unlock by successful Tucked tap count only — no place, pin location, or POI required. Joke tone only; no quit/wellness/can tracking.
 
 ---
 
@@ -127,7 +132,7 @@ Enum + simple unlock rules; no badge editor.
 
 Lip Map is a joke map for pouch people. Tap Tucked when you put one in. We drop a pin. That’s the whole bit.
 
-Share a 6-digit code with friends, peek at their pins, and climb a weekly league ranked by unique places — not volume. Unlock ridiculous badges like ZYNachino, Gate B12, and Two In One Red Light.
+Share a 6-digit code with friends (they accept your follow request), peek at their pins, and climb a weekly league ranked by unique places — not volume. Unlock ridiculous badges like ZYNachino, Gate B12, Ten Deep, and Hundred Club.
 
 Entertainment only. 18+. Not a quit app. Not wellness. Just pins.
 
