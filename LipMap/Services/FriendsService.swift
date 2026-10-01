@@ -329,11 +329,12 @@ final class FriendsService {
     }
     #endif
 
-    static func makeCode() -> String {
+    nonisolated static func makeCode() -> String {
         String(format: "%06d", Int.random(in: 0...999_999))
     }
 
-    static func normalize(_ raw: String) -> String {
+    /// Pure string filter — safe off the main actor (invite URL parsing).
+    nonisolated static func normalize(_ raw: String) -> String {
         raw.filter { $0.isNumber }
     }
 

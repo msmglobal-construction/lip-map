@@ -235,7 +235,7 @@ struct DashboardSheet: View {
                             .font(.subheadline.weight(.semibold))
                     }
                     ForEach(insights.timeOfDay) { bucket in
-                        barRow(label: bucket.label, count: bucket.count, max: insights.timeOfDay.map(\.count).max() ?? 1)
+                        barRow(label: bucket.label, count: bucket.count, maxCount: insights.timeOfDay.map(\.count).max() ?? 1)
                     }
                 }
 
@@ -245,7 +245,7 @@ struct DashboardSheet: View {
                             .font(.subheadline.weight(.semibold))
                     }
                     ForEach(insights.dayOfWeek) { bucket in
-                        barRow(label: bucket.label, count: bucket.count, max: insights.dayOfWeek.map(\.count).max() ?? 1)
+                        barRow(label: bucket.label, count: bucket.count, maxCount: insights.dayOfWeek.map(\.count).max() ?? 1)
                     }
                 }
 
@@ -319,7 +319,7 @@ struct DashboardSheet: View {
         }
     }
 
-    private func barRow(label: String, count: Int, max: Int) -> some View {
+    private func barRow(label: String, count: Int, maxCount: Int) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(label)
@@ -329,7 +329,7 @@ struct DashboardSheet: View {
                     .foregroundStyle(.secondary)
             }
             GeometryReader { geo in
-                let width = max <= 0 ? 0 : geo.size.width * CGFloat(count) / CGFloat(max)
+                let width = maxCount <= 0 ? 0 : geo.size.width * CGFloat(count) / CGFloat(maxCount)
                 Capsule()
                     .fill(LipMapTheme.accent.opacity(0.85))
                     .frame(width: max(width, count > 0 ? 6 : 0), height: 8)
