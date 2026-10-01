@@ -144,6 +144,25 @@ Rank by **unique pin locations this week** among **accepted follows only**. Home
 - Location: “Lip Map drops a pin when you tap Tucked.”
 - Contacts: “Lip Map uses Contacts so you can invite friends to compare unique places — entertainment only.”
 - URL scheme: `lipmap://`
+- **Privacy Policy (public):** https://msmglobal-construction.github.io/lip-map/privacy.html  
+  - Source: [`docs/privacy.html`](docs/privacy.html) · Markdown: [`docs/privacy.md`](docs/privacy.md)  
+  - Pages setup: [`docs/github-pages.md`](docs/github-pages.md)  
+  - Interim (pre-Pages): https://raw.githubusercontent.com/msmglobal-construction/lip-map/master/docs/privacy.html
+
+---
+
+## App Store submission
+
+Ship checklist for Mike: **[`docs/app-store-runbook.md`](docs/app-store-runbook.md)**
+
+| Doc | Purpose |
+|---|---|
+| [app-store-runbook.md](docs/app-store-runbook.md) | Paid team → Archive → upload → ASC metadata → review notes |
+| [app-store-listing.md](docs/app-store-listing.md) | Name, subtitle, description, keywords, What’s New |
+| [app-store-iap.md](docs/app-store-iap.md) | `lipmap_yearly` / `lipmap_weekly` + ASC steps |
+| [app-store-screenshots.md](docs/app-store-screenshots.md) | Home, Map, Badges, Friends, Paywall, Dashboard |
+
+Age rating target: **17+** (nicotine-related entertainment). No ZYN in listing or IAP display names.
 
 ---
 
@@ -167,6 +186,6 @@ LipMap/
   LipMap/           # app sources
   LipMap.xcodeproj
   LipMapTests/
-  docs/             # icon previews (v5 locked)
+  docs/             # icon (v5 locked), privacy, App Store prep
   README.md
 ```
