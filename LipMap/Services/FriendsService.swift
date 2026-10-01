@@ -37,11 +37,14 @@ final class FriendsService {
     }
 
     func reload() {
-        let friendDescriptor = FetchDescriptor<FriendLink>(sortBy: [SortDescriptor(\.addedAt, order: .forward)])
-        friends = (try? modelContext.fetch(friendDescriptor)) ?? []
+        // Sort in memory to avoid Swift 6 Sendable KeyPath warnings on SortDescriptor(\.…).
+        let friendDescriptor = FetchDescriptor<FriendLink>()
+        friends = ((try? modelContext.fetch(friendDescriptor)) ?? [])
+            .sorted { $0.addedAt < $1.addedAt }
 
-        let requestDescriptor = FetchDescriptor<FollowRequest>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        let all = (try? modelContext.fetch(requestDescriptor)) ?? []
+        let requestDescriptor = FetchDescriptor<FollowRequest>()
+        let all = ((try? modelContext.fetch(requestDescriptor)) ?? [])
+            .sorted { $0.createdAt > $1.createdAt }
         incomingPending = all.filter { $0.direction == .incoming && $0.status == .pending }
         outgoingPending = all.filter { $0.direction == .outgoing && $0.status == .pending }
     }
@@ -50,7 +53,7 @@ final class FriendsService {
     @discardableResult
     func sendFollowRequest(code raw: String, displayName: String? = nil) throws -> FollowRequest {
         let code = Self.normalize(raw)
-        guard code.count == 6, code.allSatisfy(\.isNumber) else {
+        guard code.count == 6, code.allSatisfy({ $0.isNumber }) else {
             throw FriendsError.invalidCode
         }
         guard code != myCode else { throw FriendsError.cannotAddSelf }
@@ -331,7 +334,7 @@ final class FriendsService {
     }
 
     static func normalize(_ raw: String) -> String {
-        raw.filter(\.isNumber)
+        raw.filter { $0.isNumber }
     }
 
     private enum Keys {

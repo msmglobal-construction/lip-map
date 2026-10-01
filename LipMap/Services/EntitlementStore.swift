@@ -23,7 +23,8 @@ final class EntitlementStore: EntitlementServing {
     private(set) var isSubscribed = false
     private(set) var yearlyProduct: Product?
     private(set) var weeklyProduct: Product?
-    private var updatesTask: Task<Void, Never>?
+    /// Task.cancel() is thread-safe; nonisolated(unsafe) lets deinit cancel under Swift 6.
+    private nonisolated(unsafe) var updatesTask: Task<Void, Never>?
 
     init() {
         updatesTask = Task { [weak self] in

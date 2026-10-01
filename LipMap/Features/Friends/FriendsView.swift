@@ -48,7 +48,7 @@ struct FriendsView: View {
                     Text("Share your 6-digit code. When someone types it, they send a follow request — you accept before they follow you or see your pins.")
                 }
 
-                Section("Send request") {
+                Section {
                     HStack {
                         TextField("Their 6-digit code", text: $pasteCode)
                             .keyboardType(.numberPad)
@@ -57,7 +57,7 @@ struct FriendsView: View {
                         Button("Request") {
                             sendRequest()
                         }
-                        .disabled(pasteCode.filter(\.isNumber).count != 6)
+                        .disabled(pasteCode.filter { $0.isNumber }.count != 6)
                     }
                     if let errorText {
                         Text(errorText)
@@ -69,12 +69,14 @@ struct FriendsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                } header: {
+                    Text("Send request")
                 } footer: {
                     Text("Typing their code sends a follow request. No search, no discover, no directory.")
                 }
 
                 if let incoming = friends?.incomingPending, !incoming.isEmpty {
-                    Section("Added you") {
+                    Section {
                         ForEach(incoming, id: \.id) { request in
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -95,13 +97,15 @@ struct FriendsView: View {
                                 .buttonStyle(.bordered)
                             }
                         }
+                    } header: {
+                        Text("Added you")
                     } footer: {
                         Text("Accept to let them follow you and see your pins. Decline or ignore leaves them out.")
                     }
                 }
 
                 if let outgoing = friends?.outgoingPending, !outgoing.isEmpty {
-                    Section("Pending") {
+                    Section {
                         ForEach(outgoing, id: \.id) { request in
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -122,12 +126,14 @@ struct FriendsView: View {
                                 try? friends.cancelOutgoingRequest(friends.outgoingPending[index])
                             }
                         }
+                    } header: {
+                        Text("Pending")
                     } footer: {
                         Text("They haven’t accepted yet. Swipe to cancel.")
                     }
                 }
 
-                Section("Following") {
+                Section {
                     if let list = friends?.friends, !list.isEmpty {
                         ForEach(list, id: \.id) { friend in
                             HStack {
@@ -153,6 +159,8 @@ struct FriendsView: View {
                         Text("Not following anyone yet. Send a request above — they have to accept.")
                             .foregroundStyle(.secondary)
                     }
+                } header: {
+                    Text("Following")
                 } footer: {
                     Text("Swipe to unfollow. League ranks unique places this week among accepted follows — not pouch count.")
                 }
